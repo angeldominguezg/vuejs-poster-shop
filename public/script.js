@@ -4,25 +4,30 @@ new Vue({
   data() {
     return {
       total: 0,
-      items: [
-        { id: 1, title: 'Item 1' },
-        { id: 2, title: 'Item 2' },
-        { id: 3, title: 'Item 3' }
-      ],
+      items: [],
       cart: [],
-      search: ''
+      newSearch: 'anime',
+      lastSearch: '',
+      loading: false,
+      price: 9.99
     }
   },
   methods: {
     onSubmit() {
-      if (this.search !== '') {
+      if (this.newSearch !== '') {
+        this.items = []
+        this.loading = true
         this.$http
-          .get(`/search/${this.search}`)
+          .get(`/search/${this.newSearch}`)
           .then(response => {
-            console.log('[onSubmit] then', response)
+            console.log('[onSubmit] then', response.data)
+            this.items = response.data
+            this.lastSearch = this.newSearch
+            this.loading = false
           })
           .catch(err => {
             console.log('[onSubmit] catch', err)
+            this.loading = false
           })
       }
     },
@@ -65,5 +70,9 @@ new Vue({
     currency: function(price) {
       return '$ ' + price.toFixed(2)
     }
+  },
+  mounted: function() {
+    console.log('[mounted]')
+    this.onSubmit()
   }
 })
