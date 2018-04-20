@@ -1,4 +1,5 @@
 var PRICE = 9.99
+var LOAD_NUM = 10
 new Vue({
   el: '#app',
   data() {
@@ -6,6 +7,7 @@ new Vue({
       total: 0,
       items: [],
       cart: [],
+      results: [],
       newSearch: 'anime',
       lastSearch: '',
       loading: false,
@@ -21,8 +23,9 @@ new Vue({
           .get(`/search/${this.newSearch}`)
           .then(response => {
             console.log('[onSubmit] then', response.data)
-            this.items = response.data
             this.lastSearch = this.newSearch
+            this.results = response.data
+            this.items = response.data.slice(0,LOAD_NUM)
             this.loading = false
           })
           .catch(err => {
