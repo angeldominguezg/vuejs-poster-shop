@@ -8,13 +8,23 @@ new Vue({
       items: [],
       cart: [],
       results: [],
-      newSearch: 'anime',
+      newSearch: '90s',
       lastSearch: '',
       loading: false,
       price: 9.99
     }
   },
   methods: {
+    appendItems() {
+      if (this.items.length < this.results.length) {
+        console.log('[appendItems]')
+        let append = this.results.slice(
+          this.items.length,
+          this.items.length + LOAD_NUM
+        )
+        this.items = this.items.concat(append)
+      }
+    },
     onSubmit() {
       if (this.newSearch !== '') {
         this.items = []
@@ -25,7 +35,7 @@ new Vue({
             console.log('[onSubmit] then', response.data)
             this.lastSearch = this.newSearch
             this.results = response.data
-            this.items = response.data.slice(0,LOAD_NUM)
+            this.appendItems()
             this.loading = false
           })
           .catch(err => {
@@ -74,8 +84,22 @@ new Vue({
       return '$ ' + price.toFixed(2)
     }
   },
+  computed: {
+    noMoreItems () {
+      return this.items.length === this.results.length && this.results.length > 0
+    }
+  },
   mounted: function() {
     console.log('[mounted]')
     this.onSubmit()
+
+    // setupt scrollMonitor
+    const vueInstance = this
+    const el = document.getElementById('product-list-bottom')
+    const watcher = scrollMonitor.create(el)
+    watcher.enterViewport(() => {
+      console.log('Enter to viewport!')
+      vueInstance.appendItems()
+    })
   }
 })
